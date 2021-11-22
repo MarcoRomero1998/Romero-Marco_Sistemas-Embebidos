@@ -1,0 +1,183 @@
+/*
+ *                                          UNIVERSIDAD TÉCNICA DEL NORTE
+ *                                  FACULTAD DE INGENIERÍA EN CIENCIAS APLICADAS
+ *                                   CARRERA DE INGENIERÍA EN TELECOMUNICACIONES
+ *                                                SISTEMAS EMBEBIDOS
+ *                                                   DEBER 3.1 
+ *                                                                                                  
+ *                    
+
+ * AUTOR: Romero Marco
+ * CAPÍTULO III: MÓDULOS DE COMUNICACIÓN I2C 
+ * FECHA: 21/11/2021
+ * CÓDIGO 13: Envío y recepción de datos complejos por cx i2c
+ 
+ * OBJETIVO: Mediante comunicación I2C configurar 1 maestro y 3 esclavos. Cada esclavo tendrá conectados 4 
+ * leds en sus salidas digitales, los cuales deberán encenderse de forma síncrona y ordenada. Los leds del 
+ * primer esclavo deberán entran en funcionamiento cuando se ingrese 'Cualquier caracter', luego cuando se 
+ * ingrese otro 'Cualquier caracter 2' entrará en funcionamiento el esclavo 2, y después cuando se ingrese 
+ * otro 'Cualquier caracter 3' entrará en funcionamiento el esclavo 3.
+ 
+ 
+ * FUNCIONES: 
+ *           Wire.begin()
+ *           Wire.beginTransmission(address) -> ID de esclavo
+ *           
+ */
+ ///////////////////////////MASTER//////////////////////
+
+ 
+#include<Wire.h>          // librería i2c
+char dato; 
+ // variable de almancenamiento de datos
+void setup() {
+  Wire.begin();           //inicia comunicacion i2c
+  Serial.begin(9600);     // inicia comunicacion serial
+}
+
+void loop() {
+    if(Serial.available()>0){             //verifica el puerto de comunicacion
+        dato=Serial.read(); 
+
+        Wire.beginTransmission(1);  
+        Wire.beginTransmission(2); 
+        Wire.beginTransmission(3);       // empieza comunicacion i2c
+        Wire.write(dato);                 // envía dato
+        Wire.endTransmission();           // termina comunicacion i2c
+                   // almacena el dato en variable
+
+      }
+}
+
+
+
+
+
+ ///////////////////////////ESCLAVO 1//////////////////////
+
+#include <Wire.h> //librería i2c
+char dato;         // variable de almacenamiento de dato de cx i2c
+int tam=0;         //contador de posiciones del vector de los esclavos
+char esclavos[3];   //Creación de vector que contendra a los tres esclavos
+
+
+const int leds [4] = {8,9,10,11};   // Vector de posiciones de los 4 leds que tendran nuestros esclavos
+void setup() {
+  Wire.begin(3);                    // id de esclavo
+  Wire.onReceive(receiveEvent);     // evento de recepción
+  Serial.begin(9600);               // inicio de cx serial
+ 
+  for(int i=0;i<4;i++){             // Desplazamiento, configuración de pines como salida
+   pinMode (leds [i], OUTPUT ); 
+ }
+}
+void loop() {
+  
+}
+void receiveEvent (int bytes){
+  while(Wire.available()){      
+    dato=Wire.read();
+      if(isAlpha(dato)||  isDigit(dato)) {      // Funciones para tomar en cuenta los caracteres en números y letras
+      esclavos[tam] =dato;                      // Asignación del tamaño del vector de posición
+      tam++;                                    // Incremento de las posciciones del vector
+      if(tam==1){                               // Guía del primer esclavo
+       if(esclavos[0]==dato){                   // Vector anidado de condición de posición
+       for(int i=0;i<4;i++){                    // Ciclo de juego de leds
+       digitalWrite(leds [i],HIGH);             // Envia 5v en la posición i
+       delay (20000);                           // Se detiene el microcontrolador por 20000 ms
+       digitalWrite( leds [i],LOW) ;            // Envia 0V en la posicion i
+       delay(20000);                            // Se detiene el microcontrolador por 20000 ms
+         }                
+        }
+      }
+    }   
+  }
+} 
+
+
+
+ ///////////////////////////ESCLAVO 2//////////////////////
+
+#include <Wire.h> //librería i2c
+char dato;         // variable de almacenamiento de dato de cx i2c
+int tam=0;         //contador de posiciones del vector de los esclavos
+char esclavos[3];   //Creación de vector que contendra a los tres esclavos
+
+
+const int leds [4] = {8,9,10,11};   // Vector de posiciones de los 4 leds que tendran nuestros esclavos
+void setup() {
+  Wire.begin(3);                    // id de esclavo
+  Wire.onReceive(receiveEvent);     // evento de recepción
+  Serial.begin(9600);               // inicio de cx serial
+ 
+  for(int i=0;i<4;i++){             // Desplazamiento, configuración de pines como salida
+   pinMode (leds [i], OUTPUT ); 
+ }
+}
+void loop() {
+  
+}
+void receiveEvent (int bytes){
+  while(Wire.available()){      
+    dato=Wire.read();
+      if(isAlpha(dato)||  isDigit(dato)) {      // Funciones para tomar en cuenta los caracteres en números y letras
+      esclavos[tam] =dato;                      // Asignación del tamaño del vector de posición
+      tam++;                                    // Incremento de las posciciones del vector
+      if(tam==2){                               // Guía del primer esclavo
+       if(esclavos[1]==dato){                   // Vector anidado de condición de posición
+       for(int i=0;i<4;i++){                    // Ciclo de juego de leds
+       digitalWrite(leds [i],HIGH);             // Envia 5v en la posición i
+       delay (20000);                           // Se detiene el microcontrolador por 20000 ms
+       digitalWrite( leds [i],LOW) ;            // Envia 0V en la posicion i
+       delay(20000);                            // Se detiene el microcontrolador por 20000 ms
+         }                
+        }
+      }
+    }   
+  }
+} 
+
+
+
+///////////////////////////ESCLAVO 3//////////////////////
+
+#include <Wire.h> //librería i2c
+char dato;         // variable de almacenamiento de dato de cx i2c
+int tam=0;         //contador de posiciones del vector de los esclavos
+char esclavos[3];   //Creación de vector que contendra a los tres esclavos
+
+
+const int leds [4] = {8,9,10,11};   // Vector de posiciones de los 4 leds que tendran nuestros esclavos
+void setup() {
+  Wire.begin(3);                    // id de esclavo
+  Wire.onReceive(receiveEvent);     // evento de recepción
+  Serial.begin(9600);               // inicio de cx serial
+ 
+  for(int i=0;i<4;i++){             // Desplazamiento, configuración de pines como salida
+   pinMode (leds [i], OUTPUT ); 
+ }
+}
+void loop() {
+  
+}
+void receiveEvent (int bytes){
+  while(Wire.available()){      
+    dato=Wire.read();
+      if(isAlpha(dato)||  isDigit(dato)) {      // Funciones para tomar en cuenta los caracteres en números y letras
+      esclavos[tam] =dato;                      // Asignación del tamaño del vector de posición
+      tam++;                                    // Incremento de las posciciones del vector
+      if(tam==3){                               // Guía del primer esclavo
+       if(esclavos[2]==dato){                   // Vector anidado de condición de posición
+       for(int i=0;i<4;i++){                    // Ciclo de juego de leds
+       digitalWrite(leds [i],HIGH);             // Envia 5v en la posición i
+       delay (20000);                           // Se detiene el microcontrolador por 20000 ms
+       digitalWrite( leds [i],LOW) ;            // Envia 0V en la posicion i
+       delay(20000);                            // Se detiene el microcontrolador por 20000 ms
+         }                
+        }
+      }
+    }   
+  }
+} 
+
+
